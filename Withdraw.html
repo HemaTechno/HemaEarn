@@ -1,181 +1,82 @@
+<!-- مثال على صفحة تحويل كوينات بعد التعديل -->
 <!DOCTYPE html>
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تحويل كوينات إلى روبوكس</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <title>تحويل الكوينات</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
     body {
-      font-family: 'Cairo', sans-serif;
-      background-color: #111;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
+      background: #101010;
+      color: white;
+      font-family: 'Tajawal', sans-serif;
       padding: 20px;
-    }
-    .banner {
-      width: 100%;
-      height: 200px;
-      background-color: #222;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      background-size: cover;
-      background-position: center;
-    }
-    .coins-display {
-      background-color: #1c1c1c;
-      padding: 15px;
-      border: 1px solid red;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      font-size: 18px;
       text-align: center;
     }
-    .options button {
-      width: 48%;
-      padding: 10px;
-      margin: 1%;
-      border: 1px solid red;
-      background-color: #1c1c1c;
-      color: white;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
+
+    .section {
+      border: 2px solid red;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 15px;
+      max-width: 500px;
+      background-color: #1a1a1a;
     }
-    .withdraw-section {
-      display: none;
-      margin-top: 20px;
-      background-color: #1c1c1c;
-      padding: 15px;
-      border: 1px solid red;
-      border-radius: 12px;
-    }
+
     input {
-      width: 100%;
       padding: 10px;
+      width: 90%;
       margin-top: 10px;
       border: none;
-      border-radius: 8px;
-      background-color: #333;
-      color: white;
+      border-radius: 10px;
     }
-    .submit-btn {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
+
+    button {
       background-color: red;
-      color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      margin-top: 15px;
+      color: white;
       cursor: pointer;
     }
-    iframe {
-      width: 100%;
-      height: 200px;
-      margin-top: 10px;
-      border-radius: 10px;
+
+    #coinDisplay {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #00ff90;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="banner" id="banner"></div>
-    <div class="coins-display">
-      رصيدك الحالي: <span id="userCoins">0</span> كوين
-    </div>
 
-    <div class="options">
-      <button onclick="selectMethod('gamepass')">سحب Game Pass</button>
-      <button onclick="selectMethod('group')">سحب جروب</button>
-    </div>
+  <img src="banner.jpg" alt="Banner" style="width: 100%; border-radius: 15px;">
 
-    <div id="gamepassSection" class="withdraw-section">
-      <h3>طريقة سحب Game Pass</h3>
-      <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
-      <input type="text" id="gamepassLink" placeholder="رابط الـ Game Pass">
-      <input type="number" id="gamepassAmount" placeholder="الكمية المطلوبة (الحد الأدنى 5)">
-      <button class="submit-btn" onclick="submitWithdraw('gamepass')">تقديم الطلب</button>
-    </div>
+  <div id="coinDisplay">جاري تحميل رصيدك...</div>
 
-    <div id="groupSection" class="withdraw-section">
-      <h3>طريقة سحب الجروب</h3>
-      <input type="number" id="groupAmount" placeholder="الكمية المطلوبة (الحد الأدنى 5)">
-      <button class="submit-btn" onclick="submitWithdraw('group')">تأكيد الطلب</button>
-    </div>
+  <div class="section">
+    <h3>اختر طريقة السحب:</h3>
+    <button onclick="showGamepass()">سحب Game Pass</button>
+    <button onclick="showGroup()">سحب جروب</button>
   </div>
 
-  <script>
-    let currentUser = null;
-    let userCoins = 0;
-    let inGroup = false;
-    let joinDate = null;
+  <div id="gamepassSection" class="section" style="display:none;">
+    <h4>طريقة سحب Game Pass</h4>
+    <iframe width="100%" height="200" src="https://www.youtube.com/embed/YOUTUBE_ID" frameborder="0" allowfullscreen></iframe>
+    <input type="text" id="gamepassLink" placeholder="رابط الجيم باس">
+    <input type="number" id="gamepassAmount" placeholder="كمية الروبوكس">
+    <button onclick="submitGamepass()">تقديم الطلب</button>
+  </div>
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        const ref = firebase.database().ref('users/' + user.uid);
-        ref.once('value').then(snapshot => {
-          const data = snapshot.val();
-          userCoins = data?.coins?.collected || 0;
-          inGroup = data?.inGroup || false;
-          joinDate = data?.groupJoinDate || null;
-          document.getElementById('userCoins').innerText = userCoins;
-        });
-      } else {
-        location.href = 'login.html';
-      }
-    });
+  <div id="groupSection" class="section" style="display:none;">
+    <h4>طريقة سحب جروب</h4>
+    <input type="number" id="groupAmount" placeholder="كمية الروبوكس">
+    <button onclick="submitGroup()">تقديم الطلب</button>
+    <div id="groupWarning" style="color: orange; margin-top: 10px;"></div>
+  </div>
 
-    function selectMethod(method) {
-      document.getElementById('gamepassSection').style.display = 'none';
-      document.getElementById('groupSection').style.display = 'none';
-      if (method === 'gamepass') {
-        document.getElementById('gamepassSection').style.display = 'block';
-      } else {
-        if (!inGroup || !joinDate) return alert('يجب أن تكون في الجروب أولاً');
-        const joinTime = new Date(joinDate);
-        const now = new Date();
-        const daysPassed = Math.floor((now - joinTime) / (1000 * 60 * 60 * 24));
-        if (daysPassed < 14) return alert(`يجب الانتظار ${14 - daysPassed} يوم للسحب من الجروب`);
-        document.getElementById('groupSection').style.display = 'block';
-      }
-    }
-
-    function submitWithdraw(method) {
-      let amount;
-      let data = { method, status: 'pending', date: new Date().toISOString() };
-
-      if (method === 'gamepass') {
-        const link = document.getElementById('gamepassLink').value.trim();
-        amount = parseInt(document.getElementById('gamepassAmount').value);
-        if (!link || !amount) return alert('يرجى تعبئة جميع الحقول');
-        if (amount < 5) return alert('أقل كمية للسحب هي 5');
-        data.link = link;
-        data.amount = amount;
-      } else {
-        amount = parseInt(document.getElementById('groupAmount').value);
-        if (!amount) return alert('يرجى إدخال الكمية');
-        if (amount < 5) return alert('أقل كمية للسحب هي 5');
-        data.amount = amount;
-      }
-
-      if (userCoins < amount) return alert('ليس لديك كوينات كافية');
-
-      firebase.database().ref(`withdraws/${method}/${currentUser.uid}`).push(data);
-      firebase.database().ref('users/' + currentUser.uid + '/coins/collected').set(userCoins - amount);
-      alert('تم تقديم طلبك وهو قيد المراجعة');
-      location.reload();
-    }
-  </script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAX8PWbKfWeBYzmX7sdrBhIT0Wp1yPjR04",
@@ -187,6 +88,109 @@
       appId: "1:533729874483:web:142462fdbd96156fe30946"
     };
     firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+    let currentUser = null;
+    let userCoins = 0;
+    let joinDate = null;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        loadUserData(user.uid);
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function loadUserData(uid) {
+      const userRef = db.ref('users/' + uid);
+      userRef.on('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        userCoins = data.coins?.collected || 0;
+        joinDate = data.groupJoinDate || null;
+
+        document.getElementById('coinDisplay').innerText = `رصيدك: ${userCoins} كوين`;
+      });
+    }
+
+    function showGamepass() {
+      document.getElementById('gamepassSection').style.display = 'block';
+      document.getElementById('groupSection').style.display = 'none';
+    }
+
+    function showGroup() {
+      if (!joinDate) {
+        document.getElementById('groupWarning').innerText = "أنت لم تنضم إلى الجروب بعد.";
+        return;
+      }
+
+      const joinedAt = new Date(joinDate);
+      const now = new Date();
+      const diff = (now - joinedAt) / (1000 * 60 * 60 * 24);
+
+      if (diff < 14) {
+        document.getElementById('groupWarning').innerText = `متبقي ${Math.ceil(14 - diff)} يوم للسحب من الجروب`;
+        return;
+      }
+
+      document.getElementById('groupSection').style.display = 'block';
+      document.getElementById('gamepassSection').style.display = 'none';
+      document.getElementById('groupWarning').innerText = "";
+    }
+
+    function submitGamepass() {
+      const link = document.getElementById('gamepassLink').value.trim();
+      const amount = parseInt(document.getElementById('gamepassAmount').value);
+
+      if (!link || isNaN(amount) || amount < 5) {
+        alert("يجب إدخال رابط وكمية لا تقل عن 5.");
+        return;
+      }
+
+      if (amount > userCoins) {
+        alert("رصيدك غير كاف.");
+        return;
+      }
+
+      db.ref('withdrawRequests/gamepass').push({
+        uid: currentUser.uid,
+        link,
+        amount,
+        status: 'pending',
+        date: new Date().toISOString()
+      });
+
+      db.ref('users/' + currentUser.uid + '/coins/collected').set(userCoins - amount);
+      alert("تم تقديم طلب السحب عبر Game Pass.");
+    }
+
+    function submitGroup() {
+      const amount = parseInt(document.getElementById('groupAmount').value);
+
+      if (isNaN(amount) || amount < 5) {
+        alert("أقل كمية للسحب هي 5.");
+        return;
+      }
+
+      if (amount > userCoins) {
+        alert("رصيدك غير كاف.");
+        return;
+      }
+
+      db.ref('withdrawRequests/group').push({
+        uid: currentUser.uid,
+        amount,
+        status: 'pending',
+        date: new Date().toISOString()
+      });
+
+      db.ref('users/' + currentUser.uid + '/coins/collected').set(userCoins - amount);
+      alert("تم تقديم طلب السحب عبر الجروب.");
+    }
   </script>
 </body>
 </html>
