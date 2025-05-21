@@ -1,13 +1,15 @@
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAX8PWbKfWeBYzmX7sdrBhIT0Wp1yPjR04",
+  authDomain: "hemaern.firebaseapp.com",
+  databaseURL: "https://hemaern-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hemaern",
+  storageBucket: "hemaern.firebasestorage.app",
+  messagingSenderId: "533729874483",
+  appId: "1:533729874483:web:142462fdbd96156fe30946"
 };
+
 firebase.initializeApp(firebaseConfig);
-emailjs.init("YOUR_EMAILJS_USER_ID");
+emailjs.init("sCPwwv_HxKqZ4Cv3X");
 
 function emailLogin() {
   const email = document.getElementById("email").value;
@@ -31,7 +33,7 @@ let generatedCode = "";
 function sendVerificationCode(email) {
   generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
   document.getElementById("verification-box").style.display = "block";
-  emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+  emailjs.send("service_xum3xhh", "template_pq1zshc", {
     to_email: email,
     message: generatedCode
   }).then(() => {
