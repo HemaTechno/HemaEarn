@@ -111,5 +111,5 @@ function fakeCheckRobloxGroup(name) {
 }
 
 function goToTasks() {
-  window.location.href = 'tasks.html';  // غير حسب اسم صفحة المهام عندك
+  window.location.href = 'Task.html';  // غير حسب اسم صفحة المهام عندك
 }
