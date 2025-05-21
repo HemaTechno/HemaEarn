@@ -15,13 +15,16 @@ const db = firebase.database();
 
 let currentUser = null;
 
+// رقم الجروب في Roblox
+const groupId = 11634679; // <<<< غير هذا الرقم برقم الجروب الحقيقي
+
 auth.onAuthStateChanged(user => {
   if (user) {
     currentUser = user;
     loadUserData(user.uid);
   } else {
     // إذا المستخدم مش مسجل دخول
-    window.location.href = "login.html"; // أو الصفحة المناسبة
+    window.location.href = "login.html";
   }
 });
 
@@ -75,41 +78,45 @@ function startCountdown(joinDate) {
   const timer = setInterval(updateCountdown, 1000);
 }
 
-function checkGroup() {
+async function checkGroup() {
   const robloxName = document.getElementById('robloxName').value.trim();
   if (!robloxName) {
     alert('من فضلك أدخل اسمك في Roblox');
     return;
   }
 
-  // هنا لازم تضيف التحقق من اسم المستخدم داخل الجروب
-  // لو انت عندك API او طريقة تحقق، استبدل هذا الجزء بالكود المناسب
-  // هذا مجرد مثال وهمي:
+  try {
+    const userId = await getUserIdByUsername(robloxName);
+    const inGroup = await isUserInGroup(userId, groupId);
 
-  fakeCheckRobloxGroup(robloxName).then(inGroup => {
     if (inGroup) {
       alert('أنت في الجروب! سيتم تسجيل دخولك.');
-      // تحديث حالة المستخدم في قاعدة البيانات
-      db.ref('users/' + currentUser.uid).update({
+      await db.ref('users/' + currentUser.uid).update({
         inGroup: true,
         groupJoinDate: new Date().toISOString()
       });
     } else {
       alert('أنت لست في الجروب');
     }
-  });
+  } catch (error) {
+    alert('حدث خطأ أثناء التحقق، حاول مرة أخرى');
+    console.error(error);
+  }
 }
 
-// مثال وهمي للتحقق - استبدله برابط API حقيقي او منطق تحقق عندك
-function fakeCheckRobloxGroup(name) {
-  return new Promise(resolve => {
-    // افتراضيا: لو الاسم يحتوي "roblox" اعتبره في الجروب
-    setTimeout(() => {
-      resolve(name.toLowerCase().includes('roblox'));
-    }, 1000);
-  });
+async function getUserIdByUsername(username) {
+  const response = await fetch(`https://api.roblox.com/users/get-by-username?username=${username}`);
+  const data = await response.json();
+  if (data.Id) return data.Id;
+  throw new Error('User not found');
+}
+
+async function isUserInGroup(userId, groupId) {
+  const response = await fetch(`https://groups.roblox.com/v1/users/${userId}/groups/roles`);
+  const data = await response.json();
+  return data.data.some(group => group.id === groupId);
 }
 
 function goToTasks() {
-  window.location.href = 'Task.html';  // غير حسب اسم صفحة المهام عندك
+  window.location.href = 'Task.html';
 }
