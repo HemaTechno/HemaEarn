@@ -1,80 +1,137 @@
-<!-- مثال على صفحة تحويل كوينات بعد التعديل -->
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>تحويل الكوينات</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تحويل الكوينات إلى روبوكس</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
+    /* ألوان وأسلوب */
     body {
-      background: #101010;
-      color: white;
+      margin: 0;
+      background-color: #0d1117;
+      color: #58a6ff;
       font-family: 'Tajawal', sans-serif;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .section {
-      border: 2px solid red;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 15px;
-      max-width: 500px;
-      background-color: #1a1a1a;
-    }
-
-    input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
       padding: 10px;
-      width: 90%;
-      margin-top: 10px;
-      border: none;
-      border-radius: 10px;
     }
 
-    button {
-      background-color: red;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      margin-top: 15px;
-      color: white;
-      cursor: pointer;
+    img#banner {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 15px #58a6ff;
     }
 
     #coinDisplay {
-      font-size: 22px;
-      margin-bottom: 20px;
-      color: #00ff90;
+      font-size: 24px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      color: #79c0ff;
+      text-shadow: 0 0 5px #1f6feb;
     }
+
+    .section {
+      background-color: #161b22;
+      border: 2px solid #2380f7;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 0 10px #2380f7;
+    }
+
+    h3, h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #58a6ff;
+      text-align: center;
+    }
+
+    button {
+      background-color: #2380f7;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      margin: 10px 0;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1866d6;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1.5px solid #2380f7;
+      background-color: #0d1117;
+      color: #58a6ff;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    input::placeholder {
+      color: #8bb9ff;
+    }
+
+    iframe {
+      border-radius: 12px;
+      width: 100%;
+      height: 200px;
+      border: none;
+      box-shadow: 0 0 10px #2380f7;
+      margin-bottom: 15px;
+    }
+
+    #groupWarning {
+      color: #fca311;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
 
-  <img src="banner.jpg" alt="Banner" style="width: 100%; border-radius: 15px;">
+  <img id="banner" src="banner.jpg" alt="بانر" />
 
   <div id="coinDisplay">جاري تحميل رصيدك...</div>
 
   <div class="section">
-    <h3>اختر طريقة السحب:</h3>
+    <h3>اختر طريقة السحب</h3>
     <button onclick="showGamepass()">سحب Game Pass</button>
     <button onclick="showGroup()">سحب جروب</button>
   </div>
 
   <div id="gamepassSection" class="section" style="display:none;">
-    <h4>طريقة سحب Game Pass</h4>
-    <iframe width="100%" height="200" src="https://www.youtube.com/embed/YOUTUBE_ID" frameborder="0" allowfullscreen></iframe>
-    <input type="text" id="gamepassLink" placeholder="رابط الجيم باس">
-    <input type="number" id="gamepassAmount" placeholder="كمية الروبوكس">
+    <h4>سحب Game Pass</h4>
+    <iframe src="https://www.youtube.com/embed/YOUTUBE_ID" allowfullscreen></iframe>
+    <input type="text" id="gamepassLink" placeholder="رابط الجيم باس" />
+    <input type="number" id="gamepassAmount" placeholder="كمية الروبوكس" min="5" />
     <button onclick="submitGamepass()">تقديم الطلب</button>
   </div>
 
   <div id="groupSection" class="section" style="display:none;">
-    <h4>طريقة سحب جروب</h4>
-    <input type="number" id="groupAmount" placeholder="كمية الروبوكس">
+    <h4>سحب جروب</h4>
+    <input type="number" id="groupAmount" placeholder="كمية الروبوكس" min="5" />
     <button onclick="submitGroup()">تقديم الطلب</button>
-    <div id="groupWarning" style="color: orange; margin-top: 10px;"></div>
+    <div id="groupWarning"></div>
   </div>
 
   <script>
@@ -105,8 +162,7 @@
     });
 
     function loadUserData(uid) {
-      const userRef = db.ref('users/' + uid);
-      userRef.on('value', snapshot => {
+      db.ref('users/' + uid).on('value', snapshot => {
         const data = snapshot.val();
         if (!data) return;
 
@@ -120,6 +176,7 @@
     function showGamepass() {
       document.getElementById('gamepassSection').style.display = 'block';
       document.getElementById('groupSection').style.display = 'none';
+      document.getElementById('groupWarning').innerText = "";
     }
 
     function showGroup() {
@@ -147,7 +204,7 @@
       const amount = parseInt(document.getElementById('gamepassAmount').value);
 
       if (!link || isNaN(amount) || amount < 5) {
-        alert("يجب إدخال رابط وكمية لا تقل عن 5.");
+        alert("يرجى إدخال رابط صالح وكمية لا تقل عن 5.");
         return;
       }
 
@@ -156,16 +213,22 @@
         return;
       }
 
-      db.ref('withdrawRequests/gamepass').push({
+      const newRequest = {
         uid: currentUser.uid,
+        type: 'gamepass',
         link,
         amount,
         status: 'pending',
         date: new Date().toISOString()
-      });
+      };
 
+      db.ref('withdrawRequests').push(newRequest);
+
+      // خصم من الكوينات
       db.ref('users/' + currentUser.uid + '/coins/collected').set(userCoins - amount);
+
       alert("تم تقديم طلب السحب عبر Game Pass.");
+      clearInputs();
     }
 
     function submitGroup() {
@@ -181,16 +244,29 @@
         return;
       }
 
-      db.ref('withdrawRequests/group').push({
+      const newRequest = {
         uid: currentUser.uid,
+        type: 'group',
         amount,
         status: 'pending',
         date: new Date().toISOString()
-      });
+      };
 
+      db.ref('withdrawRequests').push(newRequest);
+
+      // خصم من الكوينات
       db.ref('users/' + currentUser.uid + '/coins/collected').set(userCoins - amount);
+
       alert("تم تقديم طلب السحب عبر الجروب.");
+      clearInputs();
+    }
+
+    function clearInputs() {
+      document.getElementById('gamepassLink').value = "";
+      document.getElementById('gamepassAmount').value = "";
+      document.getElementById('groupAmount').value = "";
     }
   </script>
+
 </body>
 </html>
