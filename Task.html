@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>جمع نقاط - المهام</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: #0d1117;
+    color: #58a6ff;
+    font-family: 'Cairo', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+  }
+  .container {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(10,25,47,0.85);
+    border: 2px solid #2380f7;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 15px #2380f7aa;
+    backdrop-filter: blur(10px);
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  button {
+    background: #2380f7;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    margin: 10px 0;
+    transition: background 0.3s;
+  }
+  button:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+  button:hover:not(:disabled) {
+    background: #1a6ae0;
+  }
+  #message {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 700;
+    color: #54d17a;
+  }
+  #recaptcha-container {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+  }
+</style>
+
+<!-- Google reCAPTCHA v2 -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+  <div class="container">
+    <h2>جمع نقاط - المهام</h2>
+    <p>اضغط على الإعلان لكل مرحلة، ثم أكمل الكابتشا.</p>
+
+    <div id="levels-container">
+      <!-- سيتم ملء أزرار المراحل هنا -->
+    </div>
+
+    <div id="recaptcha-container" class="g-recaptcha" data-sitekey="YOUR_SITE_KEY" data-callback="onRecaptchaSuccess"></div>
+
+    <button id="watchAdBtn" disabled>شاهد الإعلان</button>
+
+    <div id="message"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+    // إعداد Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAX8PWbKfWeBYzmX7sdrBhIT0Wp1yPjR04",
+      authDomain: "hemaern.firebaseapp.com",
+      databaseURL: "https://hemaern-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hemaern",
+      storageBucket: "hemaern.firebasedestorage.app",
+      messagingSenderId: "533729874483",
+      appId: "1:533729874483:web:142462fdbd96156fe30946"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUser = null;
+    let currentLevel = 1;
+    let recaptchaToken = null;
+
+    // تحميل بيانات المستخدم وحالة المراحل
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        loadUserLevel();
+      } else {
+        window.location.href = "login.html"; // عدل حسب صفحة تسجيل الدخول
+      }
+    });
+
+    function loadUserLevel() {
+      db.ref('users/' + currentUser.uid + '/tasks/level').once('value').then(snapshot => {
+        currentLevel = snapshot.val() || 1;
+        renderLevels();
+        resetRecaptcha();
+      });
+    }
+
+    const levelsContainer = document.getElementById('levels-container');
+    const watchAdBtn = document.getElementById('watchAdBtn');
+    const messageEl = document.getElementById('message');
+
+    // عرض أزرار المراحل حتى 5 مثلاً
+    function renderLevels() {
+      levelsContainer.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = `المرحلة ${i}`;
+        if (i < currentLevel) {
+          btn.disabled = true;
+          btn.style.background = '#4caf50';  // أخضر معبر عن إكمال المرحلة
+          btn.innerText += ' - مكتملة';
+        } else if (i === currentLevel) {
+          btn.disabled = false;
+          btn.style.background = '#2380f7';
+          btn.onclick = () => {
+            messageEl.innerText = '';
+            watchAdBtn.disabled = false;
+          };
+        } else {
+          btn.disabled = true;
+        }
+        levelsContainer.appendChild(btn);
+      }
+    }
+
+    // عند نجاح الكابتشا
+    function onRecaptchaSuccess(token) {
+      recaptchaToken = token;
+      watchAdBtn.disabled = false;
+      messageEl.innerText = '';
+    }
+
+    watchAdBtn.addEventListener('click', () => {
+      if (!recaptchaToken) {
+        alert('يرجى إكمال الكابتشا أولاً');
+        return;
+      }
+
+      watchAdBtn.disabled = true;
+      messageEl.style.color = '#58a6ff';
+      messageEl.innerText = 'جاري مشاهدة الإعلان...';
+
+      // محاكاة عرض إعلان لمدة 5 ثواني
+      setTimeout(() => {
+        // بعد انتهاء الإعلان، نضيف 1 كوين للمستخدم ونحدث المرحلة
+        addCoinAndAdvanceLevel()
+          .then(() => {
+            messageEl.style.color = '#54d17a';
+            messageEl.innerText = `تم إتمام المرحلة ${currentLevel} وتم إضافة 1 كوين!`;
+
+            currentLevel++;
+            db.ref('users/' + currentUser.uid + '/tasks/level').set(currentLevel);
+            renderLevels();
+
+            grecaptcha.reset();
+            recaptchaToken = null;
+            watchAdBtn.disabled = true;
+          })
+          .catch(() => {
+            messageEl.style.color = 'red';
+            messageEl.innerText = 'حدث خطأ، حاول مرة أخرى.';
+            watchAdBtn.disabled = false;
+          });
+      }, 5000);
+    });
+
+    function addCoinAndAdvanceLevel() {
+      return new Promise((resolve, reject) => {
+        if (!currentUser) return reject();
+
+        const userCoinsRef = db.ref('users/' + currentUser.uid + '/coins/collected');
+        userCoinsRef.transaction(current => (current || 0) + 1, (error, committed) => {
+          if (error || !committed) reject();
+          else resolve();
+        });
+      });
+    }
+
+    function resetRecaptcha() {
+      if (typeof grecaptcha !== 'undefined') {
+        grecaptcha.reset();
+        watchAdBtn.disabled = true;
+        recaptchaToken = null;
+      }
+    }
+  </script>
+</body>
+</html>
