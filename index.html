@@ -1,72 +1,54 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>الصفحة الرئيسية</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
     body {
       margin: 0; padding: 0;
       font-family: 'Cairo', sans-serif;
-      background: #0d1117;
-      color: #58a6ff;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 20px;
-      min-height: 100vh;
-      box-sizing: border-box;
+      background: linear-gradient(to bottom, #000000, #0a0f1c);
+      color: white;
     }
 
     .container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(10,25,47,0.85);
-      border: 2px solid #2380f7;
-      border-radius: 15px;
       padding: 20px;
-      box-shadow: 0 0 15px #2380f7aa;
-      backdrop-filter: blur(10px);
+      max-width: 450px;
+      margin: auto;
     }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 15px;
-      font-weight: 600;
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #0d6efd;
     }
 
     .coins {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .coin-box {
-      background: #161b22;
-      border-radius: 12px;
-      padding: 15px 10px;
-      width: 30%;
       text-align: center;
-      box-shadow: inset 0 0 8px #58a6ff88;
+      gap: 10px;
     }
 
-    .coin-box h3 {
-      margin: 0 0 8px;
-      font-size: 1.1rem;
-    }
-
-    .coin-box p {
-      font-size: 1.4rem;
-      margin: 0;
-      font-weight: 700;
-      color: #58a6ff;
+    .coins div {
+      flex: 1;
+      background: rgba(13, 110, 253, 0.2);
+      padding: 10px;
+      border-radius: 12px;
     }
 
     button {
       width: 100%;
       padding: 12px;
-      background-color: #2380f7;
+      background-color: #0d6efd;
       border: none;
       border-radius: 12px;
       color: white;
@@ -74,31 +56,13 @@
       font-weight: 600;
       cursor: pointer;
       margin-top: 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #3a97ff;
     }
 
     #groupSection {
       margin-top: 20px;
-      text-align: center;
     }
 
-    #groupSection a {
-      color: #58a6ff;
-      display: inline-block;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-      text-decoration: none;
-    }
-
-    #groupSection a:hover {
-      text-decoration: underline;
-    }
-
-    #robloxName {
+    input {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -106,47 +70,44 @@
       border: none;
       background-color: #111827;
       color: white;
-      font-size: 1rem;
-      box-sizing: border-box;
     }
 
-    #groupStatus {
-      margin-top: 10px;
-      font-weight: 700;
+    a {
       color: #58a6ff;
-      min-height: 24px;
+      display: inline-block;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
     }
 
     #countdown {
       margin-top: 10px;
-      font-weight: 700;
-      color: #58a6ff;
-      min-height: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>الصفحة الرئيسية</h2>
-    <div class="coins">
-      <div class="coin-box">
-        <h3>المجمعة</h3>
-        <p id="collected">0</p>
-      </div>
-      <div class="coin-box">
-        <h3>المعلقة</h3>
-        <p id="pending">0</p>
-      </div>
-      <div class="coin-box">
-        <h3>المسحوبة</h3>
-        <p id="withdrawn">0</p>
+    <div class="card">
+      <div class="coins">
+        <div>
+          <div>المجمعة</div>
+          <div id="collected">0</div>
+        </div>
+        <div>
+          <div>المعلقة</div>
+          <div id="pending">0</div>
+        </div>
+        <div>
+          <div>المسحوبة</div>
+          <div id="withdrawn">0</div>
+        </div>
       </div>
     </div>
 
     <button onclick="goToTasks()">جمع نقاط</button>
 
-    <div id="groupSection">
-      <a href="https://www.roblox.com/groups/yourGroupLink" target="_blank" rel="noopener noreferrer">ادخل الجروب من هنا</a>
+    <div class="card" id="groupSection">
+      <a href="https://www.roblox.com/groups/yourGroupLink" target="_blank">ادخل الجروب من هنا</a>
       <input type="text" id="robloxName" placeholder="ادخل اسمك في Roblox" />
       <button onclick="checkGroup()">تحقق</button>
       <div id="groupStatus"></div>
