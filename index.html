@@ -9,10 +9,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
+
 body {
   margin: 0; padding: 0;
   font-family: 'Cairo', sans-serif;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  background: linear-gradient(135deg, #0a0f1c, #1a2a48);
   color: #e0e6f0;
   min-height: 100vh;
   display: flex;
@@ -22,40 +23,40 @@ body {
 }
 
 .container {
-  background: rgba(20, 30, 50, 0.85);
-  border-radius: 20px;
-  padding: 30px 25px;
-  max-width: 460px;
+  max-width: 450px;
   width: 100%;
-  box-shadow: 0 0 30px #0d6efd88;
+  padding: 25px;
+  background: rgba(20, 30, 50, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 0 25px #0d6efd88;
   border: 2px solid #0d6efd;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(15px);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 25px;
+  padding: 22px 18px;
+  margin-bottom: 22px;
   border: 1.5px solid #2380f7;
-  box-shadow: 0 0 20px #2380f7aa;
+  box-shadow: 0 0 15px #2380f7aa;
 }
 
 .coins {
   display: flex;
   justify-content: space-between;
+  gap: 14px;
   text-align: center;
-  gap: 15px;
 }
 
 .coins > div {
   flex: 1;
   background: linear-gradient(145deg, #1c2a47, #15365f);
-  padding: 18px 12px;
+  padding: 14px 0;
   border-radius: 14px;
   box-shadow:
     inset 0 0 8px #58a6ff88,
-    0 2px 8px rgba(13, 110, 253, 0.5);
+    0 2px 8px rgba(13, 110, 253, 0.4);
   transition: transform 0.3s ease;
   cursor: default;
 }
@@ -64,18 +65,18 @@ body {
   transform: translateY(-5px);
   box-shadow:
     inset 0 0 12px #58a6ffcc,
-    0 5px 15px rgba(13, 110, 253, 0.7);
+    0 5px 15px rgba(13, 110, 253, 0.6);
 }
 
 .coins > div > div:first-child {
   font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 6px;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
   color: #89b9ff;
 }
 
 .coins > div > div:last-child {
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 700;
   color: #c4d8ff;
 }
