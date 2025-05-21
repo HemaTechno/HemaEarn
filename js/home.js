@@ -4,7 +4,7 @@ const firebaseConfig = {
   authDomain: "hemaern.firebaseapp.com",
   databaseURL: "https://hemaern-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "hemaern",
-  storageBucket: "hemaern.firebasestorage.app",
+  storageBucket: "hemaern.firebaseapp.com",
   messagingSenderId: "533729874483",
   appId: "1:533729874483:web:142462fdbd96156fe30946"
 };
@@ -12,18 +12,13 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
-
 let currentUser = null;
-
-// رقم الجروب في Roblox
-const groupId = 11634679; // <<<< غير هذا الرقم برقم الجروب الحقيقي
 
 auth.onAuthStateChanged(user => {
   if (user) {
     currentUser = user;
     loadUserData(user.uid);
   } else {
-    // إذا المستخدم مش مسجل دخول
     window.location.href = "login.html";
   }
 });
@@ -34,12 +29,10 @@ function loadUserData(uid) {
     const data = snapshot.val();
     if (!data) return alert('لا توجد بيانات لهذا المستخدم');
 
-    // عرض الكوينات
     document.getElementById('collected').innerText = data.coins?.collected || 0;
     document.getElementById('pending').innerText = data.coins?.pending || 0;
     document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
 
-    // حالة الجروب
     if (data.inGroup) {
       document.getElementById('groupStatus').innerText = 'أنت في الجروب';
       startCountdown(data.groupJoinDate);
@@ -78,6 +71,10 @@ function startCountdown(joinDate) {
   const timer = setInterval(updateCountdown, 1000);
 }
 
+// ========== تحقق من الجروب ==========
+
+const groupId = 11634679; // <<<<< ضع هنا رقم الجروب الخاص بك
+
 async function checkGroup() {
   const robloxName = document.getElementById('robloxName').value.trim();
   if (!robloxName) {
@@ -86,12 +83,16 @@ async function checkGroup() {
   }
 
   try {
+    console.log("جاري جلب ID للمستخدم:", robloxName);
     const userId = await getUserIdByUsername(robloxName);
+    console.log("User ID:", userId);
+
     const inGroup = await isUserInGroup(userId, groupId);
+    console.log("هل في الجروب؟", inGroup);
 
     if (inGroup) {
       alert('أنت في الجروب! سيتم تسجيل دخولك.');
-      await db.ref('users/' + currentUser.uid).update({
+      db.ref('users/' + currentUser.uid).update({
         inGroup: true,
         groupJoinDate: new Date().toISOString()
       });
@@ -100,7 +101,7 @@ async function checkGroup() {
     }
   } catch (error) {
     alert('حدث خطأ أثناء التحقق، حاول مرة أخرى');
-    console.error(error);
+    console.error("خطأ التحقق:", error);
   }
 }
 
@@ -108,13 +109,13 @@ async function getUserIdByUsername(username) {
   const response = await fetch(`https://api.roblox.com/users/get-by-username?username=${username}`);
   const data = await response.json();
   if (data.Id) return data.Id;
-  throw new Error('User not found');
+  throw new Error('لم يتم العثور على المستخدم');
 }
 
 async function isUserInGroup(userId, groupId) {
   const response = await fetch(`https://groups.roblox.com/v1/users/${userId}/groups/roles`);
   const data = await response.json();
-  return data.data.some(group => group.id === groupId);
+  return data.data.some(group => group.group.id === groupId);
 }
 
 function goToTasks() {
