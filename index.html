@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -9,171 +9,139 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
-    body {
-      margin: 0; padding: 0;
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(135deg, #0a0f1c, #1a2a48);
-      color: #e0e6f0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
 
-    .container {
-      max-width: 450px;
-      width: 100%;
-      padding: 25px;
-      background: rgba(20, 30, 50, 0.9);
-      border-radius: 20px;
-      box-shadow: 0 0 25px #0d6efd88;
-      border: 2px solid #0d6efd;
-    }
+body {
+  margin: 0; padding: 0;
+  font-family: 'Cairo', sans-serif;
+  background: linear-gradient(135deg, #0a0f1c, #1a2a48);
+  color: #e0e6f0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
 
-    .card {
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 22px 18px;
-      margin-bottom: 22px;
-      border: 1.5px solid #2380f7;
-      box-shadow: 0 0 15px #2380f7aa;
-    }
+.container {
+  max-width: 450px;
+  width: 100%;
+  padding: 25px;
+  background: rgba(20, 30, 50, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 0 25px #0d6efd88;
+  border: 2px solid #0d6efd;
+}
 
-    .coins {
-      display: flex;
-      justify-content: flex-start; /* فقط المجمعة تظهر */
-      gap: 14px;
-      text-align: center;
-    }
+.card {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 22px 18px;
+  margin-bottom: 22px;
+  border: 1.5px solid #2380f7;
+  box-shadow: 0 0 15px #2380f7aa;
+}
 
-    .coins > div {
-      flex: 1;
-      background: linear-gradient(145deg, #1c2a47, #15365f);
-      padding: 14px 0;
-      border-radius: 14px;
-      box-shadow:
-        inset 0 0 8px #58a6ff88,
-        0 2px 8px rgba(13, 110, 253, 0.4);
-      transition: transform 0.3s ease;
-      cursor: default;
-    }
+.coins {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  text-align: center;
+}
 
-    .coins > div:hover {
-      transform: translateY(-5px);
-      box-shadow:
-        inset 0 0 12px #58a6ffcc,
-        0 5px 15px rgba(13, 110, 253, 0.6);
-    }
+.coins > div {
+  flex: 1;
+  background: linear-gradient(145deg, #1c2a47, #15365f);
+  padding: 14px 0;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 8px #58a6ff88,
+    0 2px 8px rgba(13, 110, 253, 0.4);
+  transition: transform 0.3s ease;
+  cursor: default;
+}
 
-    .coins > div > div:first-child {
-      font-weight: 700;
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-      color: #89b9ff;
-    }
+.coins > div:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    inset 0 0 12px #58a6ffcc,
+    0 5px 15px rgba(13, 110, 253, 0.6);
+}
 
-    .coins > div > div:last-child {
-      font-size: 1.9rem;
-      font-weight: 700;
-      color: #c4d8ff;
-    }
+.coins > div > div:first-child {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #89b9ff;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #0d6efd, #2380f7);
-      border: none;
-      border-radius: 14px;
-      color: white;
-      font-size: 1.2rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 6px 15px #0d6efdaa;
-      transition: background 0.3s ease;
-    }
+.coins > div > div:last-child {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #c4d8ff;
+}
 
-    button:hover {
-      background: linear-gradient(135deg, #2380f7, #0d6efd);
-      box-shadow: 0 8px 20px #2380f7cc;
-    }
+button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #0d6efd, #2380f7);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 15px #0d6efdaa;
+  transition: background 0.3s ease;
+}
 
-    #groupSection a {
-      color: #58a6ff;
-      display: inline-block;
-      margin-bottom: 14px;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: underline;
-      cursor: pointer;
-    }
+button:hover {
+  background: linear-gradient(135deg, #2380f7, #0d6efd);
+  box-shadow: 0 8px 20px #2380f7cc;
+}
 
-    #groupSection input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border-radius: 12px;
-      border: none;
-      background-color: #192a50;
-      color: #c0d6ff;
-      font-size: 1.1rem;
-      box-shadow: inset 0 0 10px #0d6efd88;
-      transition: background-color 0.3s ease;
-    }
+#groupSection a {
+  color: #58a6ff;
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-    #groupSection input:focus {
-      background-color: #0d6efd22;
-      outline: none;
-    }
+#groupSection input {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 12px;
+  border: none;
+  background-color: #192a50;
+  color: #c0d6ff;
+  font-size: 1.1rem;
+  box-shadow: inset 0 0 10px #0d6efd88;
+  transition: background-color 0.3s ease;
+}
 
-    #groupStatus {
-      margin-top: 16px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #aad8ff;
-      min-height: 24px;
-    }
+#groupSection input:focus {
+  background-color: #0d6efd22;
+  outline: none;
+}
 
-    #countdown {
-      margin-top: 10px;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #70a9ff;
-    }
+#groupStatus {
+  margin-top: 16px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #aad8ff;
+  min-height: 24px;
+}
 
-    /* قسم السجلات */
-    #recordsSection {
-      margin-top: 10px;
-      padding: 15px;
-      border-radius: 14px;
-      background: rgba(30, 45, 75, 0.8);
-      border: 1.5px solid #1e90ff;
-      max-height: 250px;
-      overflow-y: auto;
-      font-size: 0.9rem;
-      color: #cde1ff;
-    }
-
-    #recordsSection h3 {
-      margin-top: 0;
-      margin-bottom: 12px;
-      color: #70a9ff;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .record-item {
-      background: rgba(25, 40, 70, 0.6);
-      margin-bottom: 10px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      box-shadow: inset 0 0 8px #1e90ffaa;
-    }
-
-    .record-item p {
-      margin: 4px 0;
-    }
+#countdown {
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #70a9ff;
+}
 
   </style>
 </head>
@@ -184,6 +152,14 @@
         <div>
           <div>المجمعة</div>
           <div id="collected">0</div>
+        </div>
+        <div>
+          <div>المعلقة</div>
+          <div id="pending">0</div>
+        </div>
+        <div>
+          <div>المسحوبة</div>
+          <div id="withdrawn">0</div>
         </div>
       </div>
     </div>
@@ -196,11 +172,6 @@
       <button onclick="checkGroup()">تحقق</button>
       <div id="groupStatus"></div>
       <div id="countdown"></div>
-    </div>
-
-    <div class="card" id="recordsSection">
-      <h3>السجلات</h3>
-      <div id="recordsList">جاري التحميل...</div>
     </div>
   </div>
 
