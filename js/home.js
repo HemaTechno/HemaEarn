@@ -19,6 +19,7 @@ auth.onAuthStateChanged(user => {
   if (user) {
     currentUser = user;
     loadUserData(user.uid);
+    loadWithdrawRequests(user.uid);  // تحميل سجل طلبات السحب عند تسجيل الدخول
   } else {
     window.location.href = "login.html"; // إعادة التوجيه لتسجيل الدخول
   }
@@ -32,8 +33,8 @@ function loadUserData(uid) {
 
     // عرض الكوينات
     document.getElementById('collected').innerText = data.coins?.collected || 0;
-    document.getElementById('pendingCoins').innerText = data.coins?.pending || 0;  // افترضت عندك عنصر لعرض الكوين المعلق
-     document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
+    document.getElementById('pendingCoins').innerText = data.coins?.pending || 0;
+    document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
 
     // حالة الجروب
     if (data.inGroup) {
@@ -74,7 +75,6 @@ function startCountdown(joinDate) {
   const timer = setInterval(updateCountdown, 1000);
 }
 
-// حفظ اسم Roblox وبدء العد التنازلي بدون تحقق من الجروب
 function checkGroup() {
   const robloxName = document.getElementById('robloxName').value.trim();
   if (!robloxName) {
@@ -94,7 +94,48 @@ function checkGroup() {
   });
 }
 
-// الانتقال لصفحة المهام
 function goToTasks() {
   window.location.href = 'Task.html';
+}
+
+// ** إضافة تحميل سجل طلبات السحب **
+function loadWithdrawRequests(uid) {
+  const recordsList = document.getElementById('withdrawRecords');
+  if (!recordsList) return; // تأكد من وجود العنصر في HTML
+
+  const requestsRef = db.ref('withdrawRequests/' + uid);
+  requestsRef.on('value', snapshot => {
+    recordsList.innerHTML = ''; // مسح السابق
+
+    const requests = snapshot.val();
+    if (!requests) {
+      recordsList.innerHTML = '<p>لا توجد طلبات سحب حالياً.</p>';
+      return;
+    }
+
+    // تحويل الكائن لمصفوفة وترتيب حسب التاريخ تنازلياً
+    const sortedRequests = Object.values(requests).sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    sortedRequests.forEach(req => {
+      const dateString = new Date(req.date).toLocaleString('ar-EG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const div = document.createElement('div');
+      div.classList.add('record-item');
+      div.innerHTML = `
+        <p><strong>التاريخ:</strong> ${dateString}</p>
+        <p><strong>نوع الطلب:</strong> ${req.type}</p>
+        <p><strong>الكمية:</strong> ${req.amount}</p>
+        <p><strong>الحالة:</strong> ${req.status}</p>
+      `;
+      recordsList.appendChild(div);
+    });
+  });
 }
