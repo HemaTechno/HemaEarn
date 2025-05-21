@@ -2,102 +2,95 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>صفحتي</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <title>ملفي الشخصي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Tajawal:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
-      background: #111;
-      color: white;
-      font-family: Arial;
-      text-align: center;
-      padding: 20px;
+      background-color: #000;
+      color: #00aaff;
+      font-family: 'Tajawal', sans-serif;
+      margin: 0;
+      padding: 10px;
     }
-    .card {
-      background: #1e1e1e;
-      border: 2px solid red;
-      border-radius: 15px;
-      padding: 20px;
-      margin: 20px auto;
-      width: 90%;
-      max-width: 500px;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: red;
-      color: white;
-      border: none;
+    .section {
+      background-color: #111;
+      border: 1px solid #00aaff;
       border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
+      padding: 15px;
+      margin-bottom: 20px;
     }
-    input {
+    .title {
+      font-family: 'Cairo', sans-serif;
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    input, button {
+      width: 100%;
       padding: 10px;
       margin-top: 10px;
-      width: 80%;
-      border-radius: 10px;
-      border: none;
       font-size: 16px;
+      border-radius: 8px;
+      border: none;
     }
-    #withdrawSection {
-      margin-top: 20px;
+    input {
+      background: #222;
+      color: white;
+      border: 1px solid #00aaff;
     }
-    table {
-      width: 100%;
-      margin-top: 15px;
-      border-collapse: collapse;
+    button {
+      background-color: #00aaff;
+      color: white;
+      font-weight: bold;
     }
-    td, th {
-      padding: 8px;
-      border: 1px solid red;
+    .hidden {
+      display: none;
+    }
+    .log {
+      background-color: #222;
+      color: white;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
-
-  <!-- رصيد العملات -->
-  <div class="card">
-    <h1>عملاتي</h1>
-    <p id="coinCount">0</p>
+  <div class="section">
+    <div class="title">عملاتي</div>
+    <p>المجمعة: <span id="collected">0</span></p>
+    <p>المعلقة: <span id="pending">0</span></p>
+    <p>المسحوبة: <span id="withdrawn">0</span></p>
   </div>
 
-  <!-- جمع كوينات -->
-  <div class="card">
-    <h2>جمع كوينات الآن</h2>
-    <button onclick="window.location.href='tasks.html'">ابدأ المهمة</button>
+  <div class="section">
+    <div class="title">جمع كوينات الآن</div>
+    <button onclick="goToTasks()">ابدأ الآن</button>
   </div>
 
-  <!-- الانضمام للجروب -->
-  <div class="card" id="groupSection">
-    <button onclick="joinGroup()">ادخل الجروب من هنا</button>
-    <br><br>
-    <input type="text" id="robloxName" placeholder="اكتب اسمك في روبلوكس">
-  </div>
-
-  <!-- عداد 14 يوم -->
-  <div class="card" id="countdownSection" style="display:none;">
-    <h3 id="countdownText">جارٍ العد التنازلي...</h3>
-    <div id="withdrawButton" style="display:none;">
-      <button onclick="goToWithdraw()">تقدر تسحب الآن</button>
+  <div class="section">
+    <div id="groupSection">
+      <button onclick="goToGroup()">ادخل الجروب من هنا</button>
+      <input id="robloxName" placeholder="اكتب اسمك في Roblox">
+      <button onclick="saveRobloxName()">حفظ الاسم</button>
     </div>
+    <div id="groupStatus" class="hidden"></div>
+    <div id="countdown"></div>
+    <button id="withdrawBtn" class="hidden" onclick="goToWithdraw()">سحب الآن</button>
   </div>
 
-  <!-- الطلبات -->
-  <div class="card" id="requestsSection">
-    <h3>طلبات السحب</h3>
-    <table id="requestsTable">
-      <thead>
-        <tr><th>الكمية</th><th>الحالة</th><th>التاريخ</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div class="section">
+    <div class="title">سجل عمليات السحب</div>
+    <div id="history">لا يوجد عمليات بعد.</div>
   </div>
 
-  <!-- دخول الديسكورد -->
-  <div class="card">
-    <button onclick="window.open('https://discord.gg/XXX')">دخول سيرفر الديسكورد</button>
+  <div class="section">
+    <button onclick="window.open('https://discord.gg/yourserver')">دخول ديسكورد</button>
   </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -112,79 +105,102 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
+
     let currentUser;
 
     auth.onAuthStateChanged(user => {
       if (!user) return location.href = "login.html";
       currentUser = user;
-      loadUserData();
-      loadRequests();
+      loadUserData(user.uid);
+      loadHistory(user.uid);
     });
 
-    function joinGroup() {
-      const name = document.getElementById('robloxName').value.trim();
-      if (!name) return alert('ادخل اسمك في روبلوكس');
+    function loadUserData(uid) {
+      const ref = db.ref("users/" + uid);
+      ref.on("value", snap => {
+        const data = snap.val();
+        if (!data) return;
 
-      db.ref('users/' + currentUser.uid).update({
-        robloxName: name,
-        inGroup: true,
-        groupJoinDate: new Date().toISOString()
-      }).then(() => {
-        document.getElementById('groupSection').style.display = 'none';
-        startCountdown(new Date().toISOString());
-      });
-    }
+        document.getElementById('collected').innerText = data.coins?.collected || 0;
+        document.getElementById('pending').innerText = data.coins?.pending || 0;
+        document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
 
-    function loadUserData() {
-      db.ref('users/' + currentUser.uid).once('value').then(snapshot => {
-        const data = snapshot.val();
-        document.getElementById('coinCount').innerText = data.coins?.collected || 0;
-
-        if (data.inGroup && data.groupJoinDate) {
-          document.getElementById('groupSection').style.display = 'none';
+        if (data.inGroup) {
+          document.getElementById('groupSection').classList.add('hidden');
+          document.getElementById('groupStatus').classList.remove('hidden');
+          document.getElementById('groupStatus').innerText = "أنت في الجروب";
           startCountdown(data.groupJoinDate);
         }
       });
     }
 
+    function saveRobloxName() {
+      const name = document.getElementById("robloxName").value.trim();
+      if (!name) return alert("أدخل اسمك");
+      const now = new Date().toISOString();
+      db.ref("users/" + currentUser.uid).update({
+        robloxName: name,
+        inGroup: true,
+        groupJoinDate: now
+      }).then(() => {
+        alert("تم الحفظ بنجاح");
+        document.getElementById('groupSection').classList.add('hidden');
+        document.getElementById('groupStatus').classList.remove('hidden');
+        document.getElementById('groupStatus').innerText = "أنت في الجروب";
+        startCountdown(now);
+      });
+    }
+
     function startCountdown(joinDate) {
-      document.getElementById('countdownSection').style.display = 'block';
+      const countdown = document.getElementById("countdown");
       const target = new Date(joinDate);
       target.setDate(target.getDate() + 14);
 
-      const timer = setInterval(() => {
+      function update() {
         const now = new Date();
         const diff = target - now;
         if (diff <= 0) {
-          document.getElementById('countdownText').innerText = 'المدة انتهت، يمكنك السحب الآن!';
-          document.getElementById('withdrawButton').style.display = 'block';
+          countdown.innerText = "يمكنك السحب الآن!";
+          document.getElementById("withdrawBtn").classList.remove('hidden');
           clearInterval(timer);
           return;
         }
-
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / (1000 * 60)) % 60);
         const s = Math.floor((diff / 1000) % 60);
+        countdown.innerText = `العد التنازلي: ${d}ي ${h}س ${m}د ${s}ث`;
+      }
 
-        document.getElementById('countdownText').innerText = `العد التنازلي: ${d} يوم ${h} ساعة ${m} دقيقة ${s} ثانية`;
-      }, 1000);
+      update();
+      const timer = setInterval(update, 1000);
+    }
+
+    function loadHistory(uid) {
+      const logEl = document.getElementById("history");
+      db.ref("withdrawRequests/" + uid).on("value", snap => {
+        const data = snap.val();
+        if (!data) return logEl.innerHTML = "لا يوجد عمليات.";
+        logEl.innerHTML = "";
+        Object.values(data).forEach(item => {
+          const div = document.createElement("div");
+          div.className = "log";
+          div.innerText = `الكمية: ${item.amount} - الحالة: ${item.status} - التاريخ: ${item.date}`;
+          logEl.appendChild(div);
+        });
+      });
+    }
+
+    function goToGroup() {
+      window.open("https://www.roblox.com/groups/YOUR_GROUP", "_blank");
+    }
+
+    function goToTasks() {
+      window.location.href = "Task.html";
     }
 
     function goToWithdraw() {
-      window.location.href = 'withdraw.html';
-    }
-
-    function loadRequests() {
-      db.ref('withdrawRequests/' + currentUser.uid).on('value', snap => {
-        const tableBody = document.querySelector("#requestsTable tbody");
-        tableBody.innerHTML = '';
-        snap.forEach(req => {
-          const { amount, status, date } = req.val();
-          const row = `<tr><td>${amount}</td><td>${status}</td><td>${new Date(date).toLocaleDateString()}</td></tr>`;
-          tableBody.innerHTML += row;
-        });
-      });
+      window.location.href = "withdraw.html";
     }
   </script>
 </body>
