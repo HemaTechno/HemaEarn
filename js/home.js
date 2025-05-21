@@ -19,7 +19,7 @@ auth.onAuthStateChanged(user => {
   if (user) {
     currentUser = user;
     loadUserData(user.uid);
-    loadWithdrawRequests(user.uid);  // تحميل سجل طلبات السحب عند تسجيل الدخول
+    loadWithdrawRequests(user.uid);
   } else {
     window.location.href = "login.html"; // إعادة التوجيه لتسجيل الدخول
   }
@@ -31,7 +31,7 @@ function loadUserData(uid) {
     const data = snapshot.val();
     if (!data) return alert('لا توجد بيانات لهذا المستخدم');
 
-    // عرض الكوينات
+    // عرض الكوينات - احتفظ بها في عنصر أعلى الصفحة
     document.getElementById('collected').innerText = data.coins?.collected || 0;
     document.getElementById('pendingCoins').innerText = data.coins?.pending || 0;
     document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
@@ -75,6 +75,7 @@ function startCountdown(joinDate) {
   const timer = setInterval(updateCountdown, 1000);
 }
 
+// حفظ اسم Roblox واظهار رسالة تأكيد
 function checkGroup() {
   const robloxName = document.getElementById('robloxName').value.trim();
   if (!robloxName) {
@@ -87,7 +88,12 @@ function checkGroup() {
     inGroup: true,
     groupJoinDate: new Date().toISOString()
   }).then(() => {
-    alert('تم حفظ اسمك وبدء العد التنازلي بنجاح');
+    // اظهار مربع تأكيد حفظ الاسم
+    const confirmationBox = document.getElementById('confirmationBox');
+    if (confirmationBox) {
+      confirmationBox.style.display = 'block';
+      confirmationBox.innerText = 'تم حفظ اسمك وبدء العد التنازلي بنجاح';
+    }
   }).catch(error => {
     console.error('خطأ أثناء الحفظ:', error);
     alert('حدث خطأ أثناء الحفظ، حاول مرة أخرى');
@@ -98,14 +104,14 @@ function goToTasks() {
   window.location.href = 'Task.html';
 }
 
-// ** إضافة تحميل سجل طلبات السحب **
+// تحميل سجلات طلبات السحب وعرضها في مربع منفصل
 function loadWithdrawRequests(uid) {
   const recordsList = document.getElementById('withdrawRecords');
-  if (!recordsList) return; // تأكد من وجود العنصر في HTML
+  if (!recordsList) return;
 
   const requestsRef = db.ref('withdrawRequests/' + uid);
   requestsRef.on('value', snapshot => {
-    recordsList.innerHTML = ''; // مسح السابق
+    recordsList.innerHTML = ''; // مسح السجلات القديمة
 
     const requests = snapshot.val();
     if (!requests) {
@@ -113,7 +119,7 @@ function loadWithdrawRequests(uid) {
       return;
     }
 
-    // تحويل الكائن لمصفوفة وترتيب حسب التاريخ تنازلياً
+    // ترتيب حسب التاريخ تنازليًا (أحدث أولاً)
     const sortedRequests = Object.values(requests).sort((a, b) => {
       return new Date(b.date) - new Date(a.date);
     });
@@ -134,6 +140,7 @@ function loadWithdrawRequests(uid) {
         <p><strong>نوع الطلب:</strong> ${req.type}</p>
         <p><strong>الكمية:</strong> ${req.amount}</p>
         <p><strong>الحالة:</strong> ${req.status}</p>
+        <hr>
       `;
       recordsList.appendChild(div);
     });
