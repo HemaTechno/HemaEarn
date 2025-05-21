@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الصفحة الرئيسية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom, #000000, #0a0f1c);
+      color: white;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 450px;
+      margin: auto;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #0d6efd;
+    }
+
+    .coins {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .coins div {
+      flex: 1;
+      background: rgba(13, 110, 253, 0.2);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #0d6efd;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #groupSection {
+      margin-top: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      background-color: #111827;
+      color: white;
+    }
+
+    a {
+      color: #58a6ff;
+      display: inline-block;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    #countdown {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="coins">
+        <div>
+          <div>المجمعة</div>
+          <div id="collected">0</div>
+        </div>
+        <div>
+          <div>المعلقة</div>
+          <div id="pending">0</div>
+        </div>
+        <div>
+          <div>المسحوبة</div>
+          <div id="withdrawn">0</div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="goToTasks()">جمع نقاط</button>
+
+    <div class="card" id="groupSection">
+      <a href="https://www.roblox.com/groups/yourGroupLink" target="_blank">ادخل الجروب من هنا</a>
+      <input type="text" id="robloxName" placeholder="ادخل اسمك في Roblox" />
+      <button onclick="checkGroup()">تحقق</button>
+      <div id="groupStatus"></div>
+      <div id="countdown"></div>
+    </div>
+  </div>
+
+  <script src="js/home.js"></script>
+</body>
+</html>
