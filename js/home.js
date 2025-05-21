@@ -1,4 +1,4 @@
-
+// إعداد Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAX8PWbKfWeBYzmX7sdrBhIT0Wp1yPjR04",
   authDomain: "hemaern.firebaseapp.com",
