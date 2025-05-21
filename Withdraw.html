@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحويل كوينات إلى روبوكس</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .banner {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #e91e63;
+      color: white;
+      cursor: pointer;
+    }
+    .form-box {
+      background-color: #1e1e1e;
+      border: 1px solid #e91e63;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    button.submit-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <img src="banner.jpg" class="banner" alt="بانر">
+
+  <h2>اختر طريقة السحب</h2>
+  <button class="option-btn" onclick="showPass()">سحب قيم باس</button>
+  <button class="option-btn" onclick="showGroup()">سحب جروب</button>
+
+  <div id="passForm" class="form-box" style="display:none;">
+    <h3>سحب عن طريق قيم باس</h3>
+    <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+    <input type="text" id="passLink" placeholder="رابط القيم باس">
+    <input type="number" id="passAmount" placeholder="الكمية المطلوبة">
+    <button class="submit-btn" onclick="submitPass()">تقديم</button>
+  </div>
+
+  <div id="groupForm" class="form-box" style="display:none;">
+    <h3>سحب عن طريق جروب</h3>
+    <input type="number" id="groupAmount" placeholder="الكمية المطلوبة">
+    <button class="submit-btn" onclick="submitGroup()">تأكيد</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAX8PWbKfWeBYzmX7sdrBhIT0Wp1yPjR04",
+      authDomain: "hemaern.firebaseapp.com",
+      databaseURL: "https://hemaern-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hemaern",
+      storageBucket: "hemaern.appspot.com",
+      messagingSenderId: "533729874483",
+      appId: "1:533729874483:web:142462fdbd96156fe30946"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUser = null;
+    let userData = {};
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        db.ref('users/' + user.uid).once('value').then(snapshot => {
+          userData = snapshot.val();
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function showPass() {
+      document.getElementById("passForm").style.display = "block";
+      document.getElementById("groupForm").style.display = "none";
+    }
+
+    function showGroup() {
+      const joinDate = new Date(userData.groupJoinDate);
+      const now = new Date();
+      const diffDays = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
+      if (userData.inGroup && diffDays >= 14) {
+        document.getElementById("groupForm").style.display = "block";
+        document.getElementById("passForm").style.display = "none";
+      } else {
+        alert("يجب مرور 14 يوم من تاريخ دخول الجروب!");
+      }
+    }
+
+    function submitPass() {
+      const link = document.getElementById("passLink").value.trim();
+      const amount = parseInt(document.getElementById("passAmount").value);
+      if (!link || amount < 5 || amount > (userData.coins?.collected || 0)) {
+        alert("تأكد من البيانات والكمية (الحد الأدنى 5 روبوكس)");
+        return;
+      }
+      db.ref('users/' + currentUser.uid + '/coins/collected').set((userData.coins.collected || 0) - amount);
+      db.ref('withdrawals/pass').push({ uid: currentUser.uid, link, amount, status: 'pending', date: new Date().toISOString() });
+      alert("تم تقديم الطلب بنجاح كـمعلق");
+    }
+
+    function submitGroup() {
+      const amount = parseInt(document.getElementById("groupAmount").value);
+      if (amount < 5 || amount > (userData.coins?.collected || 0)) {
+        alert("أقل كمية للسحب هي 5 روبوكس وتأكد من رصيدك");
+        return;
+      }
+      db.ref('users/' + currentUser.uid + '/coins/collected').set((userData.coins.collected || 0) - amount);
+      db.ref('withdrawals/group').push({ uid: currentUser.uid, amount, status: 'pending', date: new Date().toISOString() });
+      alert("تم تقديم طلب الجروب بنجاح كـمعلق");
+    }
+  </script>
+</body>
+</html>
