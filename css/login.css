@@ -1,85 +1,67 @@
-   * {
-      box-sizing: border-box;
-    }
+
     body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0; height: 100%;
+      background-color: #0d1117; /* أسود هادي */
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(135deg, #000428 0%, #004e92 100%);
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
-      color: #00aaff;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      top:0; left:0; right:0; bottom:0;
-      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') center center / cover no-repeat;
-      filter: blur(15px) brightness(0.6);
-      z-index: -1;
+      color: #58a6ff; /* أزرق هادي */
     }
     .container {
-      background: rgba(10, 20, 30, 0.8);
-      border: 3px solid #00aaff;
-      border-radius: 25px;
-      box-shadow: 0 0 30px #00aaffaa;
-      width: 400px;
-      max-width: 90vw;
-      padding: 40px;
+      width: 350px;
+      padding: 30px 25px;
+      border: 2px solid #58a6ff;
+      border-radius: 15px;
+      background: rgba(10, 25, 47, 0.9);
+      box-shadow: 0 0 15px #58a6ff55;
       text-align: center;
-      color: #cceeff;
-      backdrop-filter: blur(10px);
     }
     h2 {
-      font-weight: 700;
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      color: #00d4ff;
-      text-shadow: 0 0 10px #00aaffaa;
+      margin-bottom: 25px;
+      font-weight: 600;
+      font-size: 2rem;
     }
-    input[type="email"],
-    input[type="password"],
-    input[type="text"] {
+    input {
       width: 100%;
-      padding: 15px 20px;
-      margin: 12px 0;
-      border-radius: 12px;
+      padding: 12px 15px;
+      margin: 10px 0;
       border: none;
-      background: #0f1924;
-      color: #00aaff;
-      font-size: 1.1rem;
+      border-radius: 10px;
+      background-color: #161b22;
+      color: #58a6ff;
+      font-size: 1rem;
       outline: none;
-      box-shadow: inset 0 0 8px #00aaffaa;
+      box-shadow: inset 0 0 5px #58a6ff88;
       transition: background-color 0.3s ease;
     }
-    input[type="email"]:focus,
-    input[type="password"]:focus,
-    input[type="text"]:focus {
-      background-color: #001f3f;
-      box-shadow: 0 0 12px #00cfff;
+    input:focus {
+      background-color: #223044;
+      box-shadow: 0 0 10px #58a6ffbb;
     }
     button {
-      margin-top: 20px;
       width: 100%;
-      padding: 15px;
-      border-radius: 15px;
+      padding: 13px 0;
+      margin-top: 15px;
       border: none;
-      font-weight: 700;
-      font-size: 1.2rem;
-      cursor: pointer;
-      background: linear-gradient(45deg, #00aaff, #004e92);
+      border-radius: 12px;
+      background-color: #2380f7;
       color: white;
-      box-shadow: 0 0 15px #00aaff;
-      transition: background 0.4s ease, box-shadow 0.4s ease;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 0 12px #2380f7aa;
     }
     button:hover {
-      background: linear-gradient(45deg, #007bb5, #003e66);
-      box-shadow: 0 0 25px #00d4ff;
+      background-color: #1c62c4;
+      box-shadow: 0 0 15px #1c62c4cc;
     }
     #verification-box {
-      display: none;
       margin-top: 25px;
+      display: none;
     }
+    #verification-box input {
+      margin-bottom: 10px;
+    }
+  
