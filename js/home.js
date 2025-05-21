@@ -32,8 +32,8 @@ function loadUserData(uid) {
 
     // عرض الكوينات
     document.getElementById('collected').innerText = data.coins?.collected || 0;
-    document.getElementById('pending').innerText = data.coins?.pending || 0;
-    document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
+    document.getElementById('pendingCoins').innerText = data.coins?.pending || 0;  // افترضت عندك عنصر لعرض الكوين المعلق
+     document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
 
     // حالة الجروب
     if (data.inGroup) {
