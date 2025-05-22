@@ -1,96 +1,69 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>ملفي الشخصي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Tajawal:wght@500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>الصفحة الرئيسية - UnlockTask</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
   <style>
     body {
-      background-color: #000;
-      color: #00aaff;
-      font-family: 'Tajawal', sans-serif;
-      margin: 0;
-      padding: 10px;
-    }
-    .section {
-      background-color: #111;
-      border: 1px solid #00aaff;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    .title {
-      font-family: 'Cairo', sans-serif;
-      font-size: 22px;
+      background-color: #0a0a0a;
+      color: #b0d9f7;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
+      padding: 30px;
+    }
+    .profile {
+      margin-top: 20px;
+    }
+    .profile img {
+      border-radius: 50%;
+      width: 90px;
+      height: 90px;
       margin-bottom: 10px;
     }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-      border-radius: 8px;
+    .coins {
+      background-color: #111;
+      border: 1px solid #2c6fff;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .btn {
+      display: block;
+      margin: 20px auto;
+      background-color: #2c6fff;
       border: none;
-    }
-    input {
-      background: #222;
+      padding: 14px 25px;
       color: white;
-      border: 1px solid #00aaff;
-    }
-    button {
-      background-color: #00aaff;
-      color: white;
-      font-weight: bold;
-    }
-    .hidden {
-      display: none;
-    }
-    .log {
-      background-color: #222;
-      color: white;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 80%;
+      max-width: 300px;
     }
   </style>
 </head>
 <body>
-  <div class="section">
-    <div class="title">عملاتي</div>
-    <p>المجمعة: <span id="collected">0</span></p>
-    <p>المعلقة: <span id="pending">0</span></p>
-    <p>المسحوبة: <span id="withdrawn">0</span></p>
+
+  <h1>UnlockTask</h1>
+
+  <div class="profile" id="profile">
+    <img src="" id="user-img" alt="User" />
+    <h2 id="user-name">اسم المستخدم</h2>
   </div>
 
-  <div class="section">
-    <div class="title">جمع كوينات الآن</div>
-    <button onclick="goToTasks()">ابدأ الآن</button>
+  <div class="coins">
+    <p>النقاط المجَمعة: <span id="earned">0</span></p>
+    <p>النقاط المعلقة: <span id="pending">0</span></p>
+    <p>النقاط المسحوبة: <span id="withdrawn">0</span></p>
   </div>
 
-  <div class="section">
-    <div id="groupSection">
-      <button onclick="goToGroup()">ادخل الجروب من هنا</button>
-      <input id="robloxName" placeholder="اكتب اسمك في Roblox">
-      <button onclick="saveRobloxName()">حفظ الاسم</button>
-    </div>
-    <div id="groupStatus" class="hidden"></div>
-    <div id="countdown"></div>
-    <button id="withdrawBtn" class="hidden" onclick="goToWithdraw()">سحب الآن</button>
-  </div>
-
-  <div class="section">
-    <div class="title">سجل عمليات السحب</div>
-    <div id="history">لا يوجد عمليات بعد.</div>
-  </div>
-
-  <div class="section">
-    <button onclick="window.open('https://discord.gg/yourserver')">دخول ديسكورد</button>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <button class="btn" onclick="window.location.href='tasks.html'">جمع النقاط</button>
+  <button class="btn" onclick="window.location.href='group.html'">انضم للجروب</button>
+  <button class="btn" onclick="window.location.href='withdraw.html'">سحب Robux</button>
 
   <script>
     const firebaseConfig = {
@@ -98,110 +71,36 @@
       authDomain: "hemaern.firebaseapp.com",
       databaseURL: "https://hemaern-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "hemaern",
-      storageBucket: "hemaern.appspot.com",
+      storageBucket: "hemaern.firebasestorage.app",
       messagingSenderId: "533729874483",
       appId: "1:533729874483:web:142462fdbd96156fe30946"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database();
+    const db = firebase.firestore();
 
-    let currentUser;
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        document.getElementById("user-name").innerText = user.displayName;
+        document.getElementById("user-img").src = user.photoURL;
 
-    auth.onAuthStateChanged(user => {
-      if (!user) return location.href = "login.html";
-      currentUser = user;
-      loadUserData(user.uid);
-      loadHistory(user.uid);
-    });
+        const userRef = db.collection("users").doc(user.uid);
+        const doc = await userRef.get();
 
-    function loadUserData(uid) {
-      const ref = db.ref("users/" + uid);
-      ref.on("value", snap => {
-        const data = snap.val();
-        if (!data) return;
-
-        document.getElementById('collected').innerText = data.coins?.collected || 0;
-        document.getElementById('pending').innerText = data.coins?.pending || 0;
-        document.getElementById('withdrawn').innerText = data.coins?.withdrawn || 0;
-
-        if (data.inGroup) {
-          document.getElementById('groupSection').classList.add('hidden');
-          document.getElementById('groupStatus').classList.remove('hidden');
-          document.getElementById('groupStatus').innerText = "أنت في الجروب";
-          startCountdown(data.groupJoinDate);
+        if (!doc.exists) {
+          await userRef.set({ earned: 0, pending: 0, withdrawn: 0 });
         }
-      });
-    }
 
-    function saveRobloxName() {
-      const name = document.getElementById("robloxName").value.trim();
-      if (!name) return alert("أدخل اسمك");
-      const now = new Date().toISOString();
-      db.ref("users/" + currentUser.uid).update({
-        robloxName: name,
-        inGroup: true,
-        groupJoinDate: now
-      }).then(() => {
-        alert("تم الحفظ بنجاح");
-        document.getElementById('groupSection').classList.add('hidden');
-        document.getElementById('groupStatus').classList.remove('hidden');
-        document.getElementById('groupStatus').innerText = "أنت في الجروب";
-        startCountdown(now);
-      });
-    }
+        const data = (await userRef.get()).data();
+        document.getElementById("earned").innerText = data.earned || 0;
+        document.getElementById("pending").innerText = data.pending || 0;
+        document.getElementById("withdrawn").innerText = data.withdrawn || 0;
 
-    function startCountdown(joinDate) {
-      const countdown = document.getElementById("countdown");
-      const target = new Date(joinDate);
-      target.setDate(target.getDate() + 14);
-
-      function update() {
-        const now = new Date();
-        const diff = target - now;
-        if (diff <= 0) {
-          countdown.innerText = "يمكنك السحب الآن!";
-          document.getElementById("withdrawBtn").classList.remove('hidden');
-          clearInterval(timer);
-          return;
-        }
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / (1000 * 60)) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-        countdown.innerText = `العد التنازلي: ${d}ي ${h}س ${m}د ${s}ث`;
+      } else {
+        window.location.href = "login.html";
       }
-
-      update();
-      const timer = setInterval(update, 1000);
-    }
-
-    function loadHistory(uid) {
-      const logEl = document.getElementById("history");
-      db.ref("withdrawRequests/" + uid).on("value", snap => {
-        const data = snap.val();
-        if (!data) return logEl.innerHTML = "لا يوجد عمليات.";
-        logEl.innerHTML = "";
-        Object.values(data).forEach(item => {
-          const div = document.createElement("div");
-          div.className = "log";
-          div.innerText = `الكمية: ${item.amount} - الحالة: ${item.status} - التاريخ: ${item.date}`;
-          logEl.appendChild(div);
-        });
-      });
-    }
-
-    function goToGroup() {
-      window.open("https://www.roblox.com/groups/YOUR_GROUP", "_blank");
-    }
-
-    function goToTasks() {
-      window.location.href = "Task.html";
-    }
-
-    function goToWithdraw() {
-      window.location.href = "withdraw.html";
-    }
+    });
   </script>
 </body>
 </html>
