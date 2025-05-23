@@ -1,69 +1,67 @@
+<!-- index.html (صفحة تسجيل الدخول وتوليد رابط التخطي) -->
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>الصفحة الرئيسية - UnlockTask</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام تخطي Linkvertise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <style>
     body {
-      background-color: #0a0a0a;
-      color: #b0d9f7;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 30px;
-    }
-    .profile {
-      margin-top: 20px;
-    }
-    .profile img {
-      border-radius: 50%;
-      width: 90px;
-      height: 90px;
-      margin-bottom: 10px;
-    }
-    .coins {
-      background-color: #111;
-      border: 1px solid #2c6fff;
-      border-radius: 12px;
-      padding: 15px;
-      margin-top: 20px;
-    }
-    .btn {
-      display: block;
-      margin: 20px auto;
-      background-color: #2c6fff;
-      border: none;
-      padding: 14px 25px;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      max-width: 400px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #2193b0;
+      background: linear-gradient(to right, #6dd5ed, #2193b0);
+      border: none;
+      padding: 12px 24px;
       font-size: 16px;
-      border-radius: 10px;
+      border-radius: 8px;
+      color: white;
       cursor: pointer;
-      width: 80%;
-      max-width: 300px;
+      transition: 0.3s;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      color: #00f2fe;
+      font-weight: bold;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-
-  <h1>UnlockTask</h1>
-
-  <div class="profile" id="profile">
-    <img src="" id="user-img" alt="User" />
-    <h2 id="user-name">اسم المستخدم</h2>
+  <div class="container">
+    <h1>مرحبًا بك</h1>
+    <button onclick="loginWithGoogle()">تسجيل الدخول بجوجل</button>
+    <div id="bypass-link"></div>
+    <div id="status"></div>
   </div>
-
-  <div class="coins">
-    <p>النقاط المجَمعة: <span id="earned">0</span></p>
-    <p>النقاط المعلقة: <span id="pending">0</span></p>
-    <p>النقاط المسحوبة: <span id="withdrawn">0</span></p>
-  </div>
-
-  <button class="btn" onclick="window.location.href='tasks.html'">جمع النقاط</button>
-  <button class="btn" onclick="window.location.href='group.html'">انضم للجروب</button>
-  <button class="btn" onclick="window.location.href='withdraw.html'">سحب Robux</button>
 
   <script>
     const firebaseConfig = {
@@ -75,32 +73,38 @@
       messagingSenderId: "533729874483",
       appId: "1:533729874483:web:142462fdbd96156fe30946"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        document.getElementById("user-name").innerText = user.displayName;
-        document.getElementById("user-img").src = user.photoURL;
-
-        const userRef = db.collection("users").doc(user.uid);
+    function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).then(async userCredential => {
+        const uid = userCredential.user.uid;
+        const userRef = db.collection("users").doc(uid);
         const doc = await userRef.get();
 
-        if (!doc.exists) {
-          await userRef.set({ earned: 0, pending: 0, withdrawn: 0 });
+        let allowed = true;
+        if (doc.exists && doc.data().lastBypass) {
+          const lastTime = new Date(doc.data().lastBypass);
+          const now = new Date();
+          const diff = (now - lastTime) / (1000 * 60 * 60); // بالساعات
+          if (diff < 1) {
+            allowed = false;
+            const remaining = Math.ceil((1 - diff) * 60);
+            document.getElementById("status").innerText = `يجب الانتظار ${remaining} دقيقة قبل التخطي مرة أخرى.`;
+          }
         }
 
-        const data = (await userRef.get()).data();
-        document.getElementById("earned").innerText = data.earned || 0;
-        document.getElementById("pending").innerText = data.pending || 0;
-        document.getElementById("withdrawn").innerText = data.withdrawn || 0;
-
-      } else {
-        window.location.href = "login.html";
-      }
-    });
+        if (allowed) {
+          const confirmUrl = `https://yourdomain.com/confirm.html?uid=${uid}`;
+          const linkvertise = `https://linkvertise.com/123456/?r=${encodeURIComponent(confirmUrl)}`;
+          document.getElementById("bypass-link").innerHTML = `<a href='${linkvertise}' target='_blank'>اضغط هنا لتخطي الرابط</a>`;
+          document.getElementById("status").innerText = "";
+        }
+      });
+    }
   </script>
 </body>
 </html>
+
