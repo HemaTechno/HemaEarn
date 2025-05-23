@@ -1,0 +1,67 @@
+<!-- confirm.html -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تم التخطي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #1f4037, #99f2c8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .message-box {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="message-box">
+    <h2 id="message">جارٍ التحقق...</h2>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAX8PWbKfWeBYzmX7sdrBhIT0Wp1yPjR04",
+      authDomain: "hemaern.firebaseapp.com",
+      databaseURL: "https://hemaern-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hemaern",
+      storageBucket: "hemaern.firebasestorage.app",
+      messagingSenderId: "533729874483",
+      appId: "1:533729874483:web:142462fdbd96156fe30946"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get("uid");
+
+    if (uid) {
+      db.collection("users").doc(uid).set({
+        lastBypass: new Date().toISOString()
+      }, { merge: true }).then(() => {
+        document.getElementById("message").innerText = "تم التخطي بنجاح! يمكنك المحاولة مرة أخرى بعد ساعة.";
+      });
+    } else {
+      document.getElementById("message").innerText = "حدث خطأ: لا يوجد UID.";
+    }
+  </script>
+</body>
+</html>
